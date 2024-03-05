@@ -76,7 +76,7 @@ impl FileFilter {
     pub fn filter_child_files(&self, files: &mut Vec<File<'_>>) {
         use FileFilterFlags::{OnlyDirs, OnlyFiles};
 
-        files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
+        files.retain(|f| !self.ignore_patterns.is_ignored(&f.path.to_string_lossy()));
 
         match (
             self.flags.contains(&OnlyDirs),
@@ -104,7 +104,7 @@ impl FileFilter {
     /// `exa -I='*.ogg' music/*` should filter out the ogg files obtained
     /// from the glob, even though the globbing is done by the shell!
     pub fn filter_argument_files(&self, files: &mut Vec<File<'_>>) {
-        files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
+        files.retain(|f| !self.ignore_patterns.is_ignored(&f.path.to_string_lossy()));
     }
 
     /// Sort the files in the given vector based on the sort field option.
@@ -339,8 +339,8 @@ impl IgnorePatterns {
     }
 
     /// Test whether the given file should be hidden from the results.
-    fn is_ignored(&self, file: &str) -> bool {
-        self.patterns.iter().any(|p| p.matches(file))
+    fn is_ignored(&self, path: &str) -> bool {
+        self.patterns.iter().any(|p| p.matches(path))
     }
 }
 
